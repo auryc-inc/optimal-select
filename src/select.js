@@ -77,10 +77,12 @@ export function getMultiSelector (elements, options = {}) {
 
   if (!elements.every((element) => selectorMatches.some((entry) => entry === element) )) {
     // TODO: cluster matches to split into similar groups for sub selections
-    return console.log(`
-      The selected elements can\'t be efficiently mapped.
-      Its probably best to use multiple single selectors instead!
-    `, elements)
+    /*
+      return console.warn(`
+        The selected elements can\'t be efficiently mapped.
+        Its probably best to use multiple single selectors instead!
+      `, elements)
+    */
   }
 
   if (globalModified) {
