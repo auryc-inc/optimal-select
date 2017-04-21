@@ -136,6 +136,13 @@ function checkAttributes (priority, element, ignore, path, parent = element.pare
  */
 function findAttributesPattern (priority, element, ignore) {
   const attributes = element.attributes
+  var keys = [];
+  for(var i = 0; i < attributes.length; i++) {
+    // skip null attributes in IE 11
+    if (attributes[i]) {
+      keys.push(i);
+    }
+  }
   const sortedKeys = Object.keys(attributes).sort((curr, next) => {
     const currPos = priority.indexOf(attributes[curr].name)
     const nextPos = priority.indexOf(attributes[next].name)
