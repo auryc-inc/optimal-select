@@ -4,7 +4,7 @@
  * Construct a unique CSS query selector to access the selected DOM element(s).
  * For longevity it applies different matching and optimization strategies.
  */
-
+import cssEscape from 'css.escape';
 import adapt from './adapt'
 import match from './match'
 import optimize from './optimize'
@@ -72,7 +72,7 @@ export function getMultiSelector (elements, options = {}) {
   const commonSelectors = getCommonSelectors(elements)
   const descendantSelector = commonSelectors[0]
 
-  const selector = optimize(`${ancestorSelector} ${descendantSelector}`, elements, options)
+  const selector = optimize([ancestorSelector, descendantSelector], elements, options)
   const selectorMatches = convertNodeList(document.querySelectorAll(selector))
 
   if (!elements.every((element) => selectorMatches.some((entry) => entry === element) )) {
@@ -115,7 +115,7 @@ function getCommonSelectors (elements) {
 
   if (attributes) {
     const attributeSelector = Object.keys(attributes).reduce((parts, name) => {
-      parts.push(`[${name}="${attributes[name]}"]`)
+      parts.push(`[${name}="${cssEscape(attributes[name])}"]`)
       return parts
     }, []).join('')
     selectorPath.push(attributeSelector)

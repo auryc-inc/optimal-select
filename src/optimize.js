@@ -29,8 +29,13 @@ export default function optimize (selector, elements, options = {}) {
 
   const globalModified = adapt(elements[0], options)
 
-  // chunk parts outside of quotes (http://stackoverflow.com/a/25663729)
-  var path = selector.replace(/> /g, '>').split(/\s+(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+  var path;
+  if (!Array.isArray(selector)) {
+    // chunk parts outside of quotes (http://stackoverflow.com/a/25663729)
+    path = selector.replace(/> /g, '>').split(/\s+(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+  } else {
+    path = selector;
+  }
 
   if (path.length < 2) {
     return optimizePart('', selector, '', elements)

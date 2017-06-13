@@ -46,5 +46,8 @@
     "build": "NODE_ENV=production node build",
     "dev": "NODE_ENV=development node build",
     "example": "open-url 'http:/localhost:8080/example' && http-server"
+  },
+  "dependencies": {
+    "css.escape": "^1.5.1"
   }
 }
