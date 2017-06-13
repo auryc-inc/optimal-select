@@ -172,8 +172,12 @@ function findAttributesPattern (priority, element, ignore) {
       }
 
       if (attributeName === 'class') {
-        const className = attributeValue.trim().replace(/\s+/g, '.')
-        pattern = `.${className}`
+        var classNames = attributeValue.split(' ');
+        classNames = classNames.filter(function (className) {
+          return !checkIgnore(currentIgnore, attributeName, className, currentDefaultIgnore);
+        });
+        var className = classNames.join('.');
+        pattern = className ? `.${className}` : '';
       }
     }
 
