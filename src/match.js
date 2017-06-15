@@ -1,20 +1,10 @@
-/**
+ /**
  * # Match
  *
  * Retrieve selector for a node.
  */
 
-import { escapeValue } from './utilities'
-
-const defaultIgnore = {
-  attribute (attributeName) {
-    return [
-      'style',
-      'data-reactid',
-      'data-react-checksum'
-    ].indexOf(attributeName) > -1
-  }
-}
+import { checkIgnore, escapeValue } from './utilities'
 
 /**
  * Get the path of the element
@@ -156,11 +146,10 @@ function findAttributesPattern (priority, element, ignore) {
     const key = sortedKeys[i]
     const attribute = attributes[key]
     const attributeName = attribute.name
-    const attributeValue = escapeValue(attribute.value)
+    const attributeValue = escapeValue((attributeName !== 'class') ? attribute.value : [].slice.call(element.classList).join(' '));
 
     const currentIgnore = ignore[attributeName] || ignore.attribute
-    const currentDefaultIgnore = defaultIgnore[attributeName] || defaultIgnore.attribute
-    if (checkIgnore(currentIgnore, attributeName, attributeValue, currentDefaultIgnore)) {
+    if (checkIgnore(currentIgnore, attributeName, attributeValue)) {
       continue
     }
 
@@ -173,8 +162,8 @@ function findAttributesPattern (priority, element, ignore) {
 
       if (attributeName === 'class') {
         var classNames = attributeValue.split(' ');
-        classNames = classNames.filter(function (className) {
-          return !checkIgnore(currentIgnore, attributeName, className, currentDefaultIgnore);
+        classNames = classNames.filter((className) => {
+          return !checkIgnore(currentIgnore, attributeName, className);
         });
         var className = classNames.join('.');
         pattern = className ? `.${className}` : '';
@@ -267,24 +256,4 @@ function findPattern (priority, element, ignore) {
     pattern = findTagPattern(element, ignore)
   }
   return pattern
-}
-
-/**
- * Validate with custom and default functions
- *
- * @param  {Function} predicate        - [description]
- * @param  {string?}  name             - [description]
- * @param  {string}   value            - [description]
- * @param  {Function} defaultPredicate - [description]
- * @return {boolean}                   - [description]
- */
-function checkIgnore (predicate, name, value, defaultPredicate) {
-  if (!value) {
-    return true
-  }
-  const check = predicate || defaultPredicate
-  if (!check) {
-    return false
-  }
-  return check(name, value, defaultPredicate)
 }

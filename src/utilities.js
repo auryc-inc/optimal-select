@@ -31,3 +31,35 @@ export function escapeValue (value) {
   return value && value.replace(/['"`\\/:\?&!#$%^()[\]{|}*+;,.<=>@~]/g, '\\$&')
                        .replace(/\n/g, '\A')
 }
+
+const defaultIgnore = {
+  attribute (attributeName) {
+    return [
+      'style',
+      'data-reactid',
+      'data-react-checksum'
+    ].indexOf(attributeName) > -1
+  }
+}
+
+/**
+ * Validate with custom and default functions
+ *
+ * @param  {Function} predicate        - [description]
+ * @param  {string?}  name             - [description]
+ * @param  {string}   value            - [description]
+ * @param  {Function} defaultPredicate - [description]
+ * @return {boolean}                   - [description]
+ */
+export function checkIgnore (predicate, name, value) {
+  let defaultPredicate = defaultIgnore[name] || defaultIgnore.attribute
+
+  if (!value) {
+    return true
+  }
+  const check = predicate || defaultPredicate
+  if (!check) {
+    return false
+  }
+  return check(name, value, defaultPredicate)
+}

@@ -8,7 +8,7 @@ import cssEscape from 'css.escape';
 import adapt from './adapt'
 import match from './match'
 import optimize from './optimize'
-import { convertNodeList } from './utilities'
+import { checkIgnore, convertNodeList, escapeValue } from './utilities'
 import { getCommonAncestor, getCommonProperties } from './common'
 
 /**
@@ -69,7 +69,7 @@ export function getMultiSelector (elements, options = {}) {
   const ancestorSelector = getSingleSelector(ancestor, options)
 
   // TODO: consider usage of multiple selectors + parent-child relation + check for part redundancy
-  const commonSelectors = getCommonSelectors(elements)
+  const commonSelectors = getCommonSelectors(elements, options)
   const descendantSelector = commonSelectors[0]
 
   const selector = optimize([ancestorSelector, descendantSelector], elements, options)
@@ -98,27 +98,31 @@ export function getMultiSelector (elements, options = {}) {
  * @param  {Array.<HTMLElements>} elements - [description]
  * @return {string}                        - [description]
  */
-function getCommonSelectors (elements) {
-
+function getCommonSelectors (elements, options) {
+  const ignore = options.ignore;
   const { classes, attributes, tag } = getCommonProperties(elements)
 
   const selectorPath = []
 
   if (tag) {
-    selectorPath.push(tag)
+    if (!checkIgnore(ignore.tag, null, tag)) {
+      selectorPath.push(tag)
+    }
   }
 
   if (classes) {
-    const classSelector = classes.map((name) => `.${name}`).join('')
+    const classSelector = classes.filter((name) => !checkIgnore(ignore.class, 'class', name)).map((name) => `.${name}`).join('')
     selectorPath.push(classSelector)
   }
 
   if (attributes) {
     const attributeSelector = Object.keys(attributes).reduce((parts, name) => {
-      parts.push(`[${name}="${cssEscape(attributes[name])}"]`)
+      if (!checkIgnore(ignore.attribute, name, attributes[name])) {
+        parts.push(`[${name}="${cssEscape(attributes[name])}"]`)
+      }
       return parts
     }, []).join('')
-    selectorPath.push(attributeSelector)
+    selectorPath.push(attributeSelector);
   }
 
   if (selectorPath.length) {
